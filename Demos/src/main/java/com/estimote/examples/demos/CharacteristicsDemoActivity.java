@@ -258,7 +258,6 @@ public class CharacteristicsDemoActivity extends Activity {
             majorEditView.setText(String.valueOf(beacon.getMajor()));
             ArrayAdapter<String> ad = (ArrayAdapter<String>) powerSpinner.getAdapter();
             powerSpinner.setSelection(ad.getPosition(String.valueOf(beaconChars.getBroadcastingPower())));
-            // setText(String.valueOf(beaconChars.getBroadcastingPower()));
             afterConnectedView.setVisibility(View.VISIBLE);
           }
         });

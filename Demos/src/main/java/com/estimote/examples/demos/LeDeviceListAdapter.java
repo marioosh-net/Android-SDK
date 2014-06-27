@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.estimote.examples.demos.utils.BeaconNameDecoder;
+import com.estimote.examples.demos.utils.MacAddressBeaconIdentifier;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.Utils;
 
@@ -24,6 +27,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
 
   private ArrayList<Beacon> beacons;
   private LayoutInflater inflater;
+  private MacAddressBeaconIdentifier macNameDecoder = new MacAddressBeaconIdentifier();
 
   public LeDeviceListAdapter(Context context) {
     this.inflater = LayoutInflater.from(context);
@@ -65,7 +69,8 @@ public class LeDeviceListAdapter extends BaseAdapter {
     holder.minorTextView.setText("Minor: " + beacon.getMinor());
     holder.measuredPowerTextView.setText("MPower: " + beacon.getMeasuredPower());
     holder.rssiTextView.setText("RSSI: " + beacon.getRssi());
-    holder.name.setText("Name: "+beacon.getName());
+    String name = macNameDecoder.getNameByIdentifier(beacon.getMacAddress());
+    holder.name.setText("Name: "+ (name != BeaconNameDecoder.UNKNOWN ? name : beacon.getName()));
   }
 
   private View inflateIfRequired(View view, int position, ViewGroup parent) {
