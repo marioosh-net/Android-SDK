@@ -59,7 +59,7 @@ Monitoring is designed to perform periodic scans in the background. By default i
 
 ## Usage and demos ##
 
-Demos are located in [Demos](https://github.com/Estimote/Android-SDK/tree/master/Demos) directory. You can easily build it with [Gradle](http://www.gradle.org/) by typing `gradlew installDebug` (or `gradlew.bat` installDebug on Windows) in terminal when your device is connected to computer.
+Demos are located in [Demos](https://github.com/Estimote/Android-SDK/tree/master/Demos) directory. You can easily build it with [Gradle](http://www.gradle.org/) by typing `gradlew installDebug` (or `gradlew.bat installDebug` on Windows) in terminal when your device is connected to computer.
 
 Demos include samples for ranging beacons, monitoring beacons, calculating distance between beacon and the device and also changing minor value of the beacon.
 
@@ -145,6 +145,9 @@ A/EstimoteSDK(2413): at android.os.HandlerThread.run(HandlerThread.java:61)
 
 
 ## Changelog ##
+
+* 0.4.2 (June 24, 2014):
+ - Fixes https://github.com/Estimote/Android-SDK/issues/55: it is safe to use library from remote process
 
 * 0.4.1 (March 18, 2014)
  * CAN BREAK BUILD: MonitoringListener returns list of beacons the triggered enter region event (https://github.com/Estimote/Android-SDK/issues/18)
