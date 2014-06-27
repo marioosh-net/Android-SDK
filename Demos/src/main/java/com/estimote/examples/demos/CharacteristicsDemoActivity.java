@@ -1,12 +1,16 @@
 package com.estimote.examples.demos;
 
+import java.util.Arrays;
+
 import android.app.Activity;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.connection.BeaconConnection;
 
@@ -23,6 +27,7 @@ public class CharacteristicsDemoActivity extends Activity {
   private TextView statusView;
   private TextView beaconDetailsView;
   private EditText minorEditView;
+  private EditText powerEditView;
   private View afterConnectedView;
 
   @Override
@@ -35,10 +40,12 @@ public class CharacteristicsDemoActivity extends Activity {
     beaconDetailsView = (TextView) findViewById(R.id.beacon_details);
     afterConnectedView = findViewById(R.id.after_connected);
     minorEditView = (EditText) findViewById(R.id.minor);
+    powerEditView = (EditText) findViewById(R.id.power);
 
     beacon = getIntent().getParcelableExtra(ListBeaconsActivity.EXTRAS_BEACON);
     connection = new BeaconConnection(this, beacon, createConnectionCallback());
-    findViewById(R.id.update).setOnClickListener(createUpdateButtonListener());
+    findViewById(R.id.update).setOnClickListener(createUpdateButtonListener());    
+    findViewById(R.id.update_power).setOnClickListener(createUpdatePowerButtonListener());
   }
 
   @Override
@@ -81,6 +88,40 @@ public class CharacteristicsDemoActivity extends Activity {
       }
     };
   }
+  
+  /**
+   * Returns click listener on update power button.
+   * Triggers update power value on the beacon.
+   */  
+	private View.OnClickListener createUpdatePowerButtonListener() {
+		return new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				int power = parsePowerFromEditView();
+				if (power == -1) {
+					showToast("Power must be a number (-30, -20, -16, -12, -8, -4, 0, 4)");
+				} else {
+					updatePower(power);
+				}
+			}
+
+		};
+	}
+
+  /**
+   * @return Parsed integer from edit text view or -1 if cannot be parsed or not a power value.
+   */
+	private int parsePowerFromEditView() {
+		try {
+			int power = Integer.parseInt(String.valueOf(powerEditView.getText()));
+			if (!BeaconConnection.ALLOWED_POWER_LEVELS.contains(power)) {
+				return -1;
+			}
+			return power;
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}  
 
   /**
    * @return Parsed integer from edit text view or -1 if cannot be parsed.
@@ -114,6 +155,28 @@ public class CharacteristicsDemoActivity extends Activity {
       }
     });
   }
+  
+  private void updatePower(int power) {
+	    // Minor value will be normalized if it is not in the range.
+	    // Minor should be 16-bit unsigned integer.
+	    connection.writeBroadcastingPower(power, new BeaconConnection.WriteCallback() {
+	      @Override public void onSuccess() {
+	        runOnUiThread(new Runnable() {
+	          @Override public void run() {
+	            showToast("Power value updated");
+	          }
+	        });
+	      }
+
+	      @Override public void onError() {
+	        runOnUiThread(new Runnable() {
+	          @Override public void run() {
+	            showToast("Power not updated");
+	          }
+	        });
+	      }
+	    });
+	  }  
 
   private BeaconConnection.ConnectionCallback createConnectionCallback() {
     return new BeaconConnection.ConnectionCallback() {
@@ -129,6 +192,7 @@ public class CharacteristicsDemoActivity extends Activity {
                 .append("Battery: ").append(beaconChars.getBatteryPercent()).append(" %");
             beaconDetailsView.setText(sb.toString());
             minorEditView.setText(String.valueOf(beacon.getMinor()));
+            powerEditView.setText(String.valueOf(beaconChars.getBroadcastingPower()));
             afterConnectedView.setVisibility(View.VISIBLE);
           }
         });

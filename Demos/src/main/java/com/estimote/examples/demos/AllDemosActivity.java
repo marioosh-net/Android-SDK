@@ -42,5 +42,12 @@ public class AllDemosActivity extends Activity {
         startActivity(intent);
       }
     });
+    
+    findViewById(R.id.exit_button).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+        	finish();
+        }
+      });
   }
 }
