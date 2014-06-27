@@ -12,3 +12,10 @@ gen
 
 # Mac
 .DS_Store
+
+# ADT / eclipse
+.classpath
+.project
+.settings/
+project.properties
+bin/
