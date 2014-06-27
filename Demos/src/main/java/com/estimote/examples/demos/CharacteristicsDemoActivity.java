@@ -7,7 +7,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +29,7 @@ public class CharacteristicsDemoActivity extends Activity {
   private TextView statusView;
   private TextView beaconDetailsView;
   private EditText minorEditView;
-  private EditText powerEditView;
+  private Spinner powerSpinner;
   private View afterConnectedView;
 
   @Override
@@ -40,7 +42,11 @@ public class CharacteristicsDemoActivity extends Activity {
     beaconDetailsView = (TextView) findViewById(R.id.beacon_details);
     afterConnectedView = findViewById(R.id.after_connected);
     minorEditView = (EditText) findViewById(R.id.minor);
-    powerEditView = (EditText) findViewById(R.id.power);
+    powerSpinner = (Spinner) findViewById(R.id.power);
+    
+    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.powerValues, android.R.layout.simple_spinner_item);
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    powerSpinner.setAdapter(adapter);
 
     beacon = getIntent().getParcelableExtra(ListBeaconsActivity.EXTRAS_BEACON);
     connection = new BeaconConnection(this, beacon, createConnectionCallback());
@@ -99,7 +105,7 @@ public class CharacteristicsDemoActivity extends Activity {
 			public void onClick(View v) {
 				int power = parsePowerFromEditView();
 				if (power == -1) {
-					showToast("Power must be a number (-30, -20, -16, -12, -8, -4, 0, 4)");
+					showToast("Power must be a number "+BeaconConnection.ALLOWED_POWER_LEVELS.toString());
 				} else {
 					updatePower(power);
 				}
@@ -113,7 +119,7 @@ public class CharacteristicsDemoActivity extends Activity {
    */
 	private int parsePowerFromEditView() {
 		try {
-			int power = Integer.parseInt(String.valueOf(powerEditView.getText()));
+			int power = Integer.parseInt(String.valueOf(powerSpinner.getSelectedItem().toString()));
 			if (!BeaconConnection.ALLOWED_POWER_LEVELS.contains(power)) {
 				return -1;
 			}
@@ -192,7 +198,8 @@ public class CharacteristicsDemoActivity extends Activity {
                 .append("Battery: ").append(beaconChars.getBatteryPercent()).append(" %");
             beaconDetailsView.setText(sb.toString());
             minorEditView.setText(String.valueOf(beacon.getMinor()));
-            powerEditView.setText(String.valueOf(beaconChars.getBroadcastingPower()));
+            powerSpinner.setSelection(0);
+            // setText(String.valueOf(beaconChars.getBroadcastingPower()));
             afterConnectedView.setVisibility(View.VISIBLE);
           }
         });
