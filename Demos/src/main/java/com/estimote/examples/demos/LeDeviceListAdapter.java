@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.estimote.examples.demos.utils.BeaconNameDecoder;
@@ -70,7 +71,16 @@ public class LeDeviceListAdapter extends BaseAdapter {
     holder.measuredPowerTextView.setText("MPower: " + beacon.getMeasuredPower());
     holder.rssiTextView.setText("RSSI: " + beacon.getRssi());
     String name = macNameDecoder.getNameByIdentifier(beacon.getMacAddress());
-    holder.name.setText("Name: "+ (name != BeaconNameDecoder.UNKNOWN ? name : beacon.getName()));
+    holder.name.setText("Name: "+ (!name.equals(BeaconNameDecoder.UNKNOWN) ? name : beacon.getName()));
+    
+    int bg = R.drawable.beacon_gray;
+    bg = name.equals(BeaconNameDecoder.BLUEBERRY_PIE) ? R.drawable.beacon_blueberry :
+    	name.equals(BeaconNameDecoder.BLUEBERRY_PIE_2) ? R.drawable.beacon_blueberry2 :
+    		name.equals(BeaconNameDecoder.ICY_MARSHMALLOW) ? R.drawable.beacon_icy :
+    			name.equals(BeaconNameDecoder.MINT_COCTAIL) ? R.drawable.beacon_mint : 
+    				R.drawable.beacon_gray;    	
+    holder.image.setImageResource(bg);
+    
   }
 
   private View inflateIfRequired(View view, int position, ViewGroup parent) {
@@ -88,6 +98,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
     final TextView measuredPowerTextView;
     final TextView rssiTextView;
     final TextView name;
+    final ImageView image;
 
     ViewHolder(View view) {
       macTextView = (TextView) view.findViewWithTag("mac");
@@ -96,6 +107,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
       measuredPowerTextView = (TextView) view.findViewWithTag("mpower");
       rssiTextView = (TextView) view.findViewWithTag("rssi");
       name = (TextView) view.findViewWithTag("name");
+      image = (ImageView) view.findViewWithTag("image");
     }
   }
 }
