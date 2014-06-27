@@ -65,6 +65,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
     holder.minorTextView.setText("Minor: " + beacon.getMinor());
     holder.measuredPowerTextView.setText("MPower: " + beacon.getMeasuredPower());
     holder.rssiTextView.setText("RSSI: " + beacon.getRssi());
+    holder.name.setText("Name: "+beacon.getName());
   }
 
   private View inflateIfRequired(View view, int position, ViewGroup parent) {
@@ -81,6 +82,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
     final TextView minorTextView;
     final TextView measuredPowerTextView;
     final TextView rssiTextView;
+    final TextView name;
 
     ViewHolder(View view) {
       macTextView = (TextView) view.findViewWithTag("mac");
@@ -88,6 +90,7 @@ public class LeDeviceListAdapter extends BaseAdapter {
       minorTextView = (TextView) view.findViewWithTag("minor");
       measuredPowerTextView = (TextView) view.findViewWithTag("mpower");
       rssiTextView = (TextView) view.findViewWithTag("rssi");
+      name = (TextView) view.findViewWithTag("name");
     }
   }
 }

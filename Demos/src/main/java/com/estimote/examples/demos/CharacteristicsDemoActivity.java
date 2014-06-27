@@ -29,6 +29,7 @@ public class CharacteristicsDemoActivity extends Activity {
   private TextView statusView;
   private TextView beaconDetailsView;
   private EditText minorEditView;
+  private EditText majorEditView;
   private Spinner powerSpinner;
   private View afterConnectedView;
 
@@ -43,6 +44,7 @@ public class CharacteristicsDemoActivity extends Activity {
     afterConnectedView = findViewById(R.id.after_connected);
     minorEditView = (EditText) findViewById(R.id.minor);
     powerSpinner = (Spinner) findViewById(R.id.power);
+    majorEditView = (EditText) findViewById(R.id.major);
     
     ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.powerValues, android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -50,6 +52,7 @@ public class CharacteristicsDemoActivity extends Activity {
 
     beacon = getIntent().getParcelableExtra(ListBeaconsActivity.EXTRAS_BEACON);
     connection = new BeaconConnection(this, beacon, createConnectionCallback());
+    findViewById(R.id.update_major).setOnClickListener(createUpdateMajorButtonListener());
     findViewById(R.id.update).setOnClickListener(createUpdateButtonListener());    
     findViewById(R.id.update_power).setOnClickListener(createUpdatePowerButtonListener());
   }
@@ -113,6 +116,26 @@ public class CharacteristicsDemoActivity extends Activity {
 
 		};
 	}
+	
+  /**
+   * Returns click listener on update major button.
+   * Triggers update power value on the beacon.
+   */  
+	private View.OnClickListener createUpdateMajorButtonListener() {
+		return new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
+				int major = parseMajorFromEditView();
+				if (major == -1) {
+					showToast("Major must be a number");
+				} else {
+					updateMajor(major);
+				}
+			}
+
+		};
+	}	
 
   /**
    * @return Parsed integer from edit text view or -1 if cannot be parsed or not a power value.
@@ -139,6 +162,17 @@ public class CharacteristicsDemoActivity extends Activity {
       return -1;
     }
   }
+  
+  /**
+   * @return Parsed integer from edit text view or -1 if cannot be parsed.
+   */
+  private int parseMajorFromEditView() {
+    try {
+      return Integer.parseInt(String.valueOf(majorEditView.getText()));
+    } catch (NumberFormatException e) {
+      return -1;
+    }
+  }  
 
   private void updateMinor(int minor) {
     // Minor value will be normalized if it is not in the range.
@@ -182,7 +216,30 @@ public class CharacteristicsDemoActivity extends Activity {
 	        });
 	      }
 	    });
-	  }  
+	  }
+  
+  
+  private void updateMajor(int major) {
+	    // Minor value will be normalized if it is not in the range.
+	    // Minor should be 16-bit unsigned integer.
+	    connection.writeMajor(major, new BeaconConnection.WriteCallback() {
+	      @Override public void onSuccess() {
+	        runOnUiThread(new Runnable() {
+	          @Override public void run() {
+	            showToast("Major value updated");
+	          }
+	        });
+	      }
+
+	      @Override public void onError() {
+	        runOnUiThread(new Runnable() {
+	          @Override public void run() {
+	            showToast("Major not updated");
+	          }
+	        });
+	      }
+	    });
+	  }    
 
   private BeaconConnection.ConnectionCallback createConnectionCallback() {
     return new BeaconConnection.ConnectionCallback() {
@@ -198,7 +255,9 @@ public class CharacteristicsDemoActivity extends Activity {
                 .append("Battery: ").append(beaconChars.getBatteryPercent()).append(" %");
             beaconDetailsView.setText(sb.toString());
             minorEditView.setText(String.valueOf(beacon.getMinor()));
-            powerSpinner.setSelection(0);
+            majorEditView.setText(String.valueOf(beacon.getMajor()));
+            ArrayAdapter<String> ad = (ArrayAdapter<String>) powerSpinner.getAdapter();
+            powerSpinner.setSelection(ad.getPosition(String.valueOf(beaconChars.getBroadcastingPower())));
             // setText(String.valueOf(beaconChars.getBroadcastingPower()));
             afterConnectedView.setVisibility(View.VISIBLE);
           }
