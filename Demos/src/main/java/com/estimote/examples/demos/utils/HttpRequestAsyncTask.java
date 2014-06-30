@@ -1,5 +1,7 @@
 package com.estimote.examples.demos.utils;
 
+import io.socket.SocketIO;
+
 import java.util.List;
 
 import org.apache.http.client.ResponseHandler;
@@ -20,9 +22,11 @@ public class HttpRequestAsyncTask extends AsyncTask<String, Void, String> {
 	private static final String SERVER_URL = "http://localhost:8001/data";
 	private List<Beacon> beacons;
 	private MacAddressBeaconIdentifier macNameDecoder = new MacAddressBeaconIdentifier();
+	private SocketIO socket;
 	
-	public HttpRequestAsyncTask(List<Beacon> beacons) {
+	public HttpRequestAsyncTask(SocketIO socket, List<Beacon> beacons) {
 		this.beacons = beacons;
+		this.socket = socket;
 	}
 	
 	protected void onPostExecute(String result) {
@@ -44,6 +48,8 @@ public class HttpRequestAsyncTask extends AsyncTask<String, Void, String> {
 			for(Beacon b: beacons) {
 				t.put(macNameDecoder.getNameByIdentifier(b.getMacAddress()), Utils.computeAccuracy(b));
 			}
+			socket.emit("data", t.toString());
+			
 			StringEntity se = new StringEntity(t.toString());
 			httpost.setEntity(se);
 			httpost.setHeader("Accept", "application/json");

@@ -19,10 +19,18 @@ import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.utils.L;
 
+import io.socket.IOAcknowledge;
+import io.socket.IOCallback;
+import io.socket.SocketIO;
+import io.socket.SocketIOException;
+
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import org.json.JSONObject;
 
 /**
  * Displays list of found beacons sorted by RSSI.
@@ -44,6 +52,7 @@ public class ListBeaconsActivity extends Activity {
   private LeDeviceListAdapter adapter;
   
   private boolean sortByMAC = false;  
+  private SocketIO socket;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,38 @@ public class ListBeaconsActivity extends Activity {
     // Configure verbose debug logging.
     L.enableDebugLogging(true);
 
+    try {
+    socket = new SocketIO("http://127.0.0.1:8001/");
+    socket.connect(new IOCallback() {
+		
+		@Override
+		public void onMessage(JSONObject arg0, IOAcknowledge arg1) {
+		}
+		
+		@Override
+		public void onMessage(String arg0, IOAcknowledge arg1) {
+		}
+		
+		@Override
+		public void onError(SocketIOException arg0) {
+		}
+		
+		@Override
+		public void onDisconnect() {
+		}
+		
+		@Override
+		public void onConnect() {
+		}
+		
+		@Override
+		public void on(String arg0, IOAcknowledge arg1, Object... arg2) {
+		}    	
+    });
+    } catch (MalformedURLException e) {
+    	e.printStackTrace();
+    }
+    
     // Configure BeaconManager.
     beaconManager = new BeaconManager(this);
     beaconManager.setRangingListener(new BeaconManager.RangingListener() {
@@ -86,7 +127,7 @@ public class ListBeaconsActivity extends Activity {
             	adapter.replaceWith(beacons);
             }
 			
-			sendJSON(beacons);
+			sendJSON(socket, beacons);
           }
 
         });
@@ -201,8 +242,8 @@ public class ListBeaconsActivity extends Activity {
    * send beacons data to server
    * @param beacons
    */
-	private void sendJSON(List<Beacon> beacons) {
-		new HttpRequestAsyncTask(beacons).execute();
+	private void sendJSON(SocketIO socket, List<Beacon> beacons) {
+		new HttpRequestAsyncTask(socket, beacons).execute();
 	}
   
 }
