@@ -68,7 +68,7 @@
       <!--  power -->
       <TextView android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Beacon's power [dBm]:"/>
+                android:text="Beacon's power [dBm:"/>
 
       <LinearLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"

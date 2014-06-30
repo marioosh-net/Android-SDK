@@ -12,12 +12,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.estimote.sdk.utils.L;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,6 +41,8 @@ public class ListBeaconsActivity extends Activity {
 
   private BeaconManager beaconManager;
   private LeDeviceListAdapter adapter;
+  
+  private boolean sortByMAC = false;  
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +71,19 @@ public class ListBeaconsActivity extends Activity {
             // Note that beacons reported here are already sorted by estimated
             // distance between device and beacon.
             getActionBar().setSubtitle("Found beacons: " + beacons.size());
-            adapter.replaceWith(beacons);
+
+			if(sortByMAC) {
+	            List<Beacon> l = new ArrayList<Beacon>(beacons);
+	            Collections.sort(l, new Comparator<Beacon>() {
+					@Override
+					public int compare(Beacon lhs, Beacon rhs) {
+						return lhs.getMacAddress().compareTo(rhs.getMacAddress());
+					}
+				});
+	            adapter.replaceWith(l);
+            } else {
+            	adapter.replaceWith(beacons);
+            }
           }
         });
       }
