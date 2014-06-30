@@ -13,6 +13,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.estimote.examples.demos.utils.BeaconNameDecoder;
+import com.estimote.examples.demos.utils.MacAddressBeaconIdentifier;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.connection.BeaconConnection;
 
@@ -30,9 +32,12 @@ public class CharacteristicsDemoActivity extends Activity {
   private TextView beaconDetailsView;
   private EditText minorEditView;
   private EditText majorEditView;
+  private EditText intervalEditView;
   private Spinner powerSpinner;
   private View afterConnectedView;
 
+  private MacAddressBeaconIdentifier macNameDecoder = new MacAddressBeaconIdentifier();
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -45,6 +50,7 @@ public class CharacteristicsDemoActivity extends Activity {
     minorEditView = (EditText) findViewById(R.id.minor);
     powerSpinner = (Spinner) findViewById(R.id.power);
     majorEditView = (EditText) findViewById(R.id.major);
+    intervalEditView = (EditText) findViewById(R.id.interval);
     
     ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.powerValues, android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -55,6 +61,7 @@ public class CharacteristicsDemoActivity extends Activity {
     findViewById(R.id.update_major).setOnClickListener(createUpdateMajorButtonListener());
     findViewById(R.id.update).setOnClickListener(createUpdateButtonListener());    
     findViewById(R.id.update_power).setOnClickListener(createUpdatePowerButtonListener());
+    findViewById(R.id.update_interval).setOnClickListener(createUpdateIntervalButtonListener());
   }
 
   @Override
@@ -97,6 +104,20 @@ public class CharacteristicsDemoActivity extends Activity {
       }
     };
   }
+  
+	private View.OnClickListener createUpdateIntervalButtonListener() {
+		return new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+					int interval = Integer.parseInt(String.valueOf(intervalEditView.getText()));
+					updateInterval(interval);
+				} catch (NumberFormatException e) {
+					showToast("Interval must be a number");
+				}
+			}
+		};
+	}
   
   /**
    * Returns click listener on update power button.
@@ -218,6 +239,27 @@ public class CharacteristicsDemoActivity extends Activity {
 	    });
 	  }
   
+  private void updateInterval(int intervalMillis) {
+	    // Minor value will be normalized if it is not in the range.
+	    // Minor should be 16-bit unsigned integer.
+	    connection.writeAdvertisingInterval(intervalMillis, new BeaconConnection.WriteCallback() {
+	      @Override public void onSuccess() {
+	        runOnUiThread(new Runnable() {
+	          @Override public void run() {
+	            showToast("Interval value updated");
+	          }
+	        });
+	      }
+
+	      @Override public void onError() {
+	        runOnUiThread(new Runnable() {
+	          @Override public void run() {
+	            showToast("Interval not updated");
+	          }
+	        });
+	      }
+	    });
+	  }  
   
   private void updateMajor(int major) {
 	    // Minor value will be normalized if it is not in the range.
@@ -246,18 +288,21 @@ public class CharacteristicsDemoActivity extends Activity {
       @Override public void onAuthenticated(final BeaconConnection.BeaconCharacteristics beaconChars) {
         runOnUiThread(new Runnable() {
           @Override public void run() {
-            statusView.setText("Status: Connected to beacon");
+            statusView.setText("Status: Connected to beacon");            
+            String name = macNameDecoder.getNameByIdentifier(beacon.getMacAddress());            
             StringBuilder sb = new StringBuilder()
                 .append("Major: ").append(beacon.getMajor()).append("\n")
                 .append("Minor: ").append(beacon.getMinor()).append("\n")
                 .append("Advertising interval: ").append(beaconChars.getAdvertisingIntervalMillis()).append("ms\n")
                 .append("Broadcasting power: ").append(beaconChars.getBroadcastingPower()).append(" dBm\n")
-                .append("Battery: ").append(beaconChars.getBatteryPercent()).append(" %");
+                .append("Battery: ").append(beaconChars.getBatteryPercent()).append(" %\n")
+            	.append("Name: "+ (!name.equals(BeaconNameDecoder.UNKNOWN) ? name : beacon.getName()));
             beaconDetailsView.setText(sb.toString());
             minorEditView.setText(String.valueOf(beacon.getMinor()));
             majorEditView.setText(String.valueOf(beacon.getMajor()));
             ArrayAdapter<String> ad = (ArrayAdapter<String>) powerSpinner.getAdapter();
             powerSpinner.setSelection(ad.getPosition(String.valueOf(beaconChars.getBroadcastingPower())));
+            intervalEditView.setText(String.valueOf(beaconChars.getAdvertisingIntervalMillis()));
             afterConnectedView.setVisibility(View.VISIBLE);
           }
         });
