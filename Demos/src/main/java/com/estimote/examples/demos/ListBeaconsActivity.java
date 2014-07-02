@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.estimote.examples.demos.utils.HttpRequestAsyncTask;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
@@ -84,7 +85,10 @@ public class ListBeaconsActivity extends Activity {
             } else {
             	adapter.replaceWith(beacons);
             }
+			
+			sendJSON(beacons);
           }
+
         });
       }
     });
@@ -192,4 +196,13 @@ public class ListBeaconsActivity extends Activity {
     };
   }
 
+
+  /**
+   * send beacons data to server
+   * @param beacons
+   */
+	private void sendJSON(List<Beacon> beacons) {
+		new HttpRequestAsyncTask(beacons).execute();
+	}
+  
 }
