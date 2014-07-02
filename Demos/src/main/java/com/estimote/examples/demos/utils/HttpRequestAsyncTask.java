@@ -18,7 +18,7 @@ import com.estimote.sdk.Utils;
 
 public class HttpRequestAsyncTask extends AsyncTask<String, Void, String> {
 
-	private static final String SERVER_URL = "http://localhost:8001/data";
+	private static final String SERVER_URL = "http://marioosh.net:8081/data";
 	private List<Beacon> beacons;
 	private MacAddressBeaconIdentifier macNameDecoder = new MacAddressBeaconIdentifier();
 	
@@ -28,7 +28,7 @@ public class HttpRequestAsyncTask extends AsyncTask<String, Void, String> {
 	
 	protected void onPostExecute(String result) {
 		// Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
-		Log.d("HTTPREQ", result);
+		//Log.d("HTTPREQ", result);
 	}
 	
 	@Override
@@ -45,6 +45,9 @@ public class HttpRequestAsyncTask extends AsyncTask<String, Void, String> {
 			for(Beacon b: beacons) {
 				t.put(macNameDecoder.getNameByIdentifier(b.getMacAddress()), Utils.computeAccuracy(b));
 			}
+			
+			Log.d("JSON", t.toString());
+			
 			StringEntity se = new StringEntity(t.toString());
 			httpost.setEntity(se);
 			httpost.setHeader("Accept", "application/json");
