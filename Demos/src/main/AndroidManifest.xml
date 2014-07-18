@@ -24,8 +24,7 @@
 
     <activity
         android:name="com.estimote.examples.demos.AllDemosActivity"
-        android:label="Estimote Demos"
-        android:screenOrientation="portrait">
+        android:label="Estimote Demos">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
@@ -34,20 +33,19 @@
 
     <activity
         android:name="com.estimote.examples.demos.ListBeaconsActivity"
-        android:label="Select Beacon"
-        android:screenOrientation="portrait"/>
+        android:label="Select Beacon"/>
 
     <activity android:name="com.estimote.examples.demos.DistanceBeaconActivity"
               android:label="Distance Demo"
-              android:screenOrientation="portrait"/>
+              />
 
     <activity android:name="com.estimote.examples.demos.NotifyDemoActivity"
               android:label="Notify Demo"
-              android:screenOrientation="portrait"/>
+              />
 
     <activity android:name="com.estimote.examples.demos.CharacteristicsDemoActivity"
               android:label="Characteristics Demo"
-              android:screenOrientation="portrait"/>
+              />
 
     <!-- Estimote service responsible for scanning beacons. -->
     <service android:name="com.estimote.sdk.service.BeaconService"

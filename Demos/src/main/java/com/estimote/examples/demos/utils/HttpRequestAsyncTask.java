@@ -27,7 +27,7 @@ import com.estimote.sdk.Utils;
 
 public class HttpRequestAsyncTask extends AsyncTask<String, Void, String> {
 
-	private static final String SERVER_URL = "http://marioosh.net:8081/data";
+	private static final String SERVER_URL = "http://192.168.10.253:8081/data";
 	private List<Beacon> beacons;
 	private MacAddressBeaconIdentifier macNameDecoder = new MacAddressBeaconIdentifier();
 	
